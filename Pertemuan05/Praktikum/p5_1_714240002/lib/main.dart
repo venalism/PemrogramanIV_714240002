@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'material_page.dart';
+
+import 'main_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +12,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tempat Wisata Bandung.',
-      home: const DetailScreen(),
+      title: 'Wisata Bandung',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false),
+      home: const MainScreen(),
     );
   }
 }
-// This is the theme of your application.
-//

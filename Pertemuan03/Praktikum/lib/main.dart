@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pone/stateless.dart';
-import 'package:pone/stateful.dart';
 import 'package:pone/material_app.dart';
 
 void main() {

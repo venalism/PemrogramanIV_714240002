@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
 
 class Heading extends StatelessWidget {
   final String text;
-  const Heading({Key? key, required this.text}) : super(key: key);
+  const Heading({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class Heading extends StatelessWidget {
 class BiggerText extends StatefulWidget {
   final String teks;
 
-  const BiggerText({Key? key, required this.teks}) : super(key: key);
+  const BiggerText({super.key, required this.teks});
 
   @override
   State<BiggerText> createState() => _BiggerTextState();
