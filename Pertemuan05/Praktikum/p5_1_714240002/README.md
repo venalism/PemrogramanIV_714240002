@@ -1,267 +1,238 @@
-# Pertemuan 04 – Praktikum 1: Halaman Detail Tempat Wisata Bandung
+﻿# Pertemuan 05 – Praktikum 1: Aplikasi Wisata Bandung (Navigator & Route)
 
-**Mata Kuliah:** Pemrograman Mobile  
-**NIM:** 714240002  
-**Pertemuan:** 04  
-**Jenis:** Praktikum – Project (`p4_1_714240002`)  
+**Mata Kuliah:** Pemrograman Mobile
+**NIM:** 714240002
+**Pertemuan:** 05
+**Jenis:** Praktikum – Project (`p5_1_714240002`)
 
 ---
 
 ## 📋 Deskripsi Project
 
-Project Flutter ini merupakan hasil **praktikum 1 Pertemuan 04** yang membangun sebuah halaman detail tempat wisata di Bandung, yaitu **Ranca Upas Ciwidey**. Project ini mendemonstrasikan penggunaan widget layout `Column`, `Row`, `Container`, `SafeArea`, dan `Scaffold` untuk membangun tampilan informasi yang terstruktur dan informatif, tanpa menggunakan AppBar tradisional.
+Project Flutter ini merupakan hasil **Praktikum 1 Pertemuan 05**. Materi utama pertemuan ini adalah **Navigator dan Route** – yaitu sistem navigasi antar halaman dalam Flutter. Project ini melanjutkan aplikasi daftar wisata Bandung dari Pertemuan 04, dengan struktur kode yang identik karena fokus pembelajaran adalah memahami mekanisme navigasi `Navigator.push` / `Navigator.pop` dan `MaterialPageRoute` yang sudah diimplementasikan sebelumnya.
+
+Aplikasi menampilkan 9 destinasi wisata Bandung dalam bentuk daftar kartu, dan tiap kartu dapat diklik untuk membuka halaman detail penuh.
+
+---
+
+## ✨ Fitur Utama
+
+- **Daftar Wisata**: 9 tempat wisata Bandung dalam `ListView.builder` yang dapat di-scroll.
+- **Navigasi Push/Pop**: Mengetuk kartu → `Navigator.push` ke `DetailScreen`; tombol back → `Navigator.pop`.
+- **Halaman Detail**: Foto hero, nama, info hari/jam/tiket, deskripsi panjang, galeri foto horizontal.
+- **Custom Font**: Font **Staatliches** untuk heading dan label info.
+- **Gambar Lokal & Network**: Aset lokal untuk gambar utama; URL CDN untuk galeri.
+- **Graceful Fallback**: Widget placeholder jika gambar gagal dimuat.
 
 ---
 
 ## 🗂️ Struktur File
 
 ```
-lib/
-├── main.dart           # Entry point awal (tidak menggunakan halaman utama / home kosong)
-├── material_app.dart   # Root widget yang menjalankan halaman DetailScreen
-└── material_page.dart  # Halaman detail tempat wisata Ranca Upas
+p5_1_714240002/
+├── lib/
+│   ├── main.dart              # Entry point & konfigurasi MaterialApp
+│   ├── main_screen.dart       # Halaman daftar wisata (ListView)
+│   ├── detail_screen.dart     # Halaman detail tempat wisata
+│   └── model/
+│       └── tourism_place.dart # Model data & daftar statis 9 wisata
+├── images/                    # Aset gambar lokal (9 foto destinasi)
+├── fonts/
+│   └── Staatliches/
+│       └── Staatliches-Regular.ttf
+└── pubspec.yaml
 ```
 
 ---
 
-## 📄 Dokumentasi Kode
+## 🔄 Alur Navigasi (Fokus Pembelajaran)
 
-### `main.dart`
-
-File entry point aplikasi yang menginisialisasi `MyApp` tanpa halaman utama (home), berfungsi sebagai scaffolding awal.
-
-```dart
-import 'package:flutter/material.dart'; // Mengimpor library Material Design Flutter
-
-void main() {
-  runApp(const MyApp()); // Titik masuk program; menjalankan MyApp sebagai root widget
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // Konstruktor const dengan key diteruskan ke parent
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Tempat Wisata Bandung.' // Judul aplikasi di task switcher OS; tidak ada halaman home
-    );
-  }
-}
+```
+main() → runApp(MyApp)
+    └─ MaterialApp (navigation stack root)
+            └─ MainScreen                        ← Halaman 1 (stack: [MainScreen])
+                    └─ onTap kartu wisata
+                            └─ Navigator.push(MaterialPageRoute)
+                                    └─ DetailScreen(place)      ← Halaman 2 (stack: [MainScreen, DetailScreen])
+                                            └─ Navigator.pop(context)
+                                                    └─ kembali ke MainScreen ← (stack: [MainScreen])
 ```
 
-**Kelas `MyHomePage` (StatefulWidget – referensi boilerplate, tidak digunakan secara aktif):**
-```dart
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title}); // Parameter title wajib diisi
+**Konsep Navigator yang diimplementasikan:**
 
-  final String title; // Properti final: nilai tidak berubah setelah widget dibuat
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState(); // Membuat State terkait
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0; // State: menyimpan jumlah tombol ditekan
-
-  void _incrementCounter() {
-    setState(() {  // Memberitahu Flutter bahwa state berubah → UI dirender ulang
-      _counter++;  // Menambah nilai counter sebesar 1
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary, // Warna AppBar dari tema
-        title: Text(widget.title), // Menampilkan judul dari properti widget
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Posisikan child di tengah vertikal
-          children: [
-            const Text('You have pushed the button this many times:'), // Teks statis keterangan
-            Text(
-              '$_counter',                                       // Nilai counter ditampilkan dinamis
-              style: Theme.of(context).textTheme.headlineMedium, // Style dari tema aplikasi
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter, // Memanggil fungsi increment saat ditekan
-        tooltip: 'Increment',         // Tooltip yang muncul saat ditekan lama
-        child: const Icon(Icons.add), // Ikon "+" pada FAB
-      ),
-    );
-  }
-}
-```
+| Operasi | Kode | Efek |
+|---------|------|------|
+| Buka halaman baru | `Navigator.push(context, MaterialPageRoute(...))` | Halaman baru ditambah ke stack |
+| Kembali ke sebelumnya | `Navigator.pop(context)` | Halaman teratas dihapus dari stack |
+| Membawa data ke halaman | `DetailScreen(place: place)` | Data diteruskan via constructor |
 
 ---
 
-### `material_app.dart`
+## 📄 Dokumentasi Per File
 
-File root widget yang menginisialisasi aplikasi dan langsung menavigasi ke halaman `DetailScreen`.
+### `lib/main.dart`
 
-```dart
-import 'package:flutter/material.dart'; // Mengimpor library Material Design
-import 'material_page.dart';            // Mengimpor halaman DetailScreen dari file yang sama package
+Entry point aplikasi. Root widget `MyApp` mengkonfigurasi `MaterialApp`.
 
-void main() {
-  runApp(const MyApp()); // Entry point alternatif yang aktif digunakan; menjalankan MyApp
-}
+| Baris kunci | Keterangan |
+|-------------|-----------|
+| `runApp(const MyApp())` | Memulai aplikasi Flutter |
+| `MaterialApp(title: 'Wisata Bandung')` | Konfigurasi app: nama, tema, halaman awal |
+| `useMaterial3: false` | Material Design 2 |
+| `home: const MainScreen()` | Halaman pertama dan dasar navigation stack |
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // Konstruktor const
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Tempat Wisata Bandung.', // Judul aplikasi
-      home: const DetailScreen(),       // Halaman awal langsung menampilkan DetailScreen
-    );
-  }
-}
-// Komentar di bawah adalah bagian dari kode yang dapat dikembangkan lebih lanjut
-```
+> `MaterialApp` secara otomatis menyediakan `Navigator` sebagai ancestor sehingga semua widget di bawahnya dapat memanggil `Navigator.of(context)` atau `Navigator.push/pop`.
 
 ---
 
-### `material_page.dart`
+### `lib/model/tourism_place.dart`
 
-File utama yang membangun tampilan halaman detail tempat wisata Ranca Upas dengan informasi lengkap dan layout yang terstruktur.
+Model data dan daftar statis 9 tempat wisata Bandung.
+
+**Properti `TourismPlace`:**
+
+| Properti | Tipe | Keterangan |
+|----------|------|-----------|
+| `name` | `String` | Nama tempat wisata |
+| `location` | `String` | Kecamatan / kota |
+| `description` | `String` | Deskripsi wisata |
+| `openDays` | `String` | Hari operasional |
+| `openTime` | `String` | Jam operasional |
+| `ticketPrice` | `String` | Harga tiket |
+| `imageAsset` | `String` | Path gambar lokal |
+| `imageUrls` | `List<String>` | 3 URL foto galeri |
+
+**Daftar 9 destinasi:**
+
+| No | Nama | Lokasi | Tiket |
+|----|------|--------|-------|
+| 1 | Observatorium Bosscha | Lembang | Rp 20.000 |
+| 2 | Farm House Lembang | Lembang | Rp 25.000 |
+| 3 | Floating Market | Lembang | Rp 20.000 |
+| 4 | Jalan Asia Afrika | Kota Bandung | Gratis |
+| 5 | Kawah Putih | Ciwidey | Rp 15.000 |
+| 6 | Museum Geologi | Kota Bandung | Rp 3.000 |
+| 7 | Ranca Upas | Ciwidey | Rp 20.000 |
+| 8 | Stone Garden | Padalarang | Rp 3.000 |
+| 9 | Taman Film Pasopati | Kota Bandung | Gratis |
+
+---
+
+### `lib/main_screen.dart`
+
+Halaman pertama. Menampilkan daftar wisata dan men-trigger navigasi.
+
+**Pola layout satu kartu:**
+```
+InkWell (ripple)
+└─ Card (clip antiAlias)
+    └─ Row
+        ├─ Expanded(flex:1) → AspectRatio(16/9) → Image.asset  ← thumbnail (1/3 lebar)
+        └─ Expanded(flex:2) → Column                            ← info (2/3 lebar)
+                ├─ Text(name, bold, 16px)
+                └─ Row → Icon(location_on) + Text(location)
+```
+
+**Navigasi (inti pembelajaran Pertemuan 05):**
+```dart
+onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute<void>(
+      builder: (context) => DetailScreen(place: place), // bawa data via constructor
+    ),
+  );
+},
+```
+
+| Bagian | Keterangan |
+|--------|-----------|
+| `Navigator.push` | Menambah rute baru ke atas navigation stack |
+| `MaterialPageRoute` | Rute dengan transisi slide khas Material Design |
+| `DetailScreen(place: place)` | Mengirimkan objek `TourismPlace` ke halaman detail |
+
+---
+
+### `lib/detail_screen.dart`
+
+Halaman kedua. Menerima data dari `MainScreen` dan menampilkan info lengkap satu wisata.
 
 ```dart
-import 'package:flutter/material.dart'; // Mengimpor library Material Design
-
 class DetailScreen extends StatelessWidget {
-  const DetailScreen({super.key}); // Konstruktor const; tidak menerima parameter
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea( // SafeArea memastikan konten tidak tertimpa notch, status bar, atau gesture area
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, // Merentangkan child secara horizontal sepenuh layar
-          children: <Widget>[
-
-            // ── BLOK 1: JUDUL TEMPAT WISATA ──
-            Container(
-              margin: const EdgeInsets.only(top: 16.0), // Memberi jarak 16 pixel dari atas
-              child: const Text(
-                'Ranca Upas',                              // Nama tempat wisata
-                textAlign: TextAlign.center,               // Teks rata tengah secara horizontal
-                style: TextStyle(
-                  fontSize: 30,                            // Ukuran font besar (30 pixel)
-                  fontWeight: FontWeight.bold,             // Ketebalan font: tebal
-                ),
-              ),
-            ),
-
-            // ── BLOK 2: INFORMASI CEPAT (JAM, HARGA, HARI BUKA) ──
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 16.0), // Jarak vertikal 16 pixel (atas & bawah)
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Tiga kolom info dibagi merata secara horizontal
-                children: [
-
-                  // Kolom 1: Hari Buka
-                  const Column(
-                    children: const [
-                      Icon(Icons.calendar_today),  // Ikon kalender untuk menandai informasi hari buka
-                      SizedBox(height: 8.0),        // Spasi vertikal 8 pixel antara ikon dan teks
-                      Text('Open Everyday'),         // Keterangan: buka setiap hari
-                    ],
-                  ),
-
-                  SizedBox(width: 16.0), // Spasi horizontal 16 pixel antara kolom info
-
-                  // Kolom 2: Jam Operasional
-                  const Column(
-                    children: const [
-                      Icon(Icons.access_time),  // Ikon jam untuk menandai informasi jam operasional
-                      SizedBox(height: 8.0),     // Spasi vertikal 8 pixel
-                      Text('9:00 - 20:00'),      // Keterangan: jam buka pukul 9 pagi hingga 8 malam
-                    ],
-                  ),
-
-                  SizedBox(width: 16.0), // Spasi horizontal 16 pixel antara kolom info
-
-                  // Kolom 3: Harga Tiket
-                  const Column(
-                    children: const [
-                      Icon(Icons.monetization_on), // Ikon uang untuk menandai informasi harga
-                      SizedBox(height: 8.0),        // Spasi vertikal 8 pixel
-                      Text('Rp 20.000'),             // Keterangan: harga tiket masuk
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // ── BLOK 3: DESKRIPSI TEMPAT WISATA ──
-            Container(
-              padding: const EdgeInsets.all(16.0), // Padding dalam 16 pixel di semua sisi
-              child: const Text(
-                'Ranca Upas Ciwidey adalah kawasan bumi perkemahan di bawah pengelolaan perhutani. '
-                'Tempat ini berada di kawasan wisata Bandung Selatan, satu lokasi dengan kawah putih, '
-                'kolam Cimanggu dan situ Patenggang. Banyak hal yang bisa dilakukan di kawasan wisata ini, '
-                'seperti berkemah, berinteraksi dengan rusa, sampai bermain di water park dan mandi air panas.',
-                // Deskripsi lengkap tentang tempat wisata
-                textAlign: TextAlign.justify, // Teks rata kanan-kiri (justified) untuk tampilan rapi
-                style: TextStyle(fontSize: 16.0), // Ukuran font 16 pixel untuk teks deskripsi
-              ),
-            ),
-
-          ],
-        ),
-      ),
-    );
-  }
+  final TourismPlace place; // data diterima dari MainScreen via constructor
+  const DetailScreen({super.key, required this.place});
 }
+```
+
+**Layout dari atas ke bawah (dalam `SingleChildScrollView`):**
+
+| # | Bagian | Widget | Detail |
+|---|--------|--------|--------|
+| 1 | **Foto Hero** | `Stack` → `Image.asset(16/9)` | Gambar utama lokal, lebar penuh |
+| 2 | **Tombol Kembali** | `SafeArea` → `CircleAvatar` → `IconButton` | Overlay kiri atas; `Navigator.pop(context)` |
+| 3 | **Nama Wisata** | `Text` | Staatliches, 30px, center |
+| 4 | **Info Row** | `Row` → 3× `_InfoItem` | Hari buka · Jam · Tiket |
+| 5 | **Deskripsi** | `Text(justify)` | 16px, line-height 1.5 |
+| 6 | **Galeri** | `ListView.builder(horizontal)` | 3 foto network, h:150, rasio 4:3 |
+
+**Navigasi kembali (inti pembelajaran):**
+```dart
+// Di tombol kembali (CircleAvatar)
+onPressed: () => Navigator.pop(context),
+// Efek: menghapus DetailScreen dari stack → kembali ke MainScreen
+```
+
+**Widget privat `_InfoItem`** (ikon + label, font Staatliches):
+```
+Column
+├─ Icon(icon)
+├─ SizedBox(h:8)
+└─ Text(label, center, Staatliches)
 ```
 
 ---
 
-## 🧩 Konsep Utama yang Dipelajari
+## 📦 Dependensi & Aset
 
-| Konsep | Penjelasan |
-|---|---|
-| `SafeArea` | Widget yang memberikan padding otomatis agar konten tidak tertimpa area sistem (notch, status bar, navigation bar). |
-| `CrossAxisAlignment.stretch` | Merentangkan semua child `Column` untuk mengisi lebar penuh parent (sumbu silang). |
-| `EdgeInsets.only(top: ...)` | Memberikan margin hanya pada sisi tertentu (dalam hal ini, hanya atas). |
-| `EdgeInsets.symmetric(vertical: ...)` | Memberikan margin yang sama pada sisi atas dan bawah sekaligus. |
-| `EdgeInsets.all(...)` | Memberikan padding yang sama di semua sisi (atas, bawah, kiri, kanan). |
-| `MainAxisAlignment.spaceEvenly` | Mendistribusikan item dalam `Row` secara merata termasuk di tepi. |
-| `textAlign: TextAlign.justify` | Meratakan teks ke kiri dan kanan secara bersamaan, sehingga setiap baris memiliki lebar yang sama. |
-| `Icon` | Widget untuk menampilkan ikon dari kumpulan Material Icons. |
-
----
-
-## 🗺️ Fitur Aplikasi
-
-- **Judul Tempat Wisata** – Nama "Ranca Upas" ditampilkan besar dan tebal di bagian atas.
-- **Info Cepat** – Tiga kolom ikon yang menyajikan informasi hari buka, jam operasional, dan harga tiket secara ringkas.
-- **Deskripsi** – Paragraf deskriptif yang menjelaskan tempat wisata secara lengkap dengan format rata kanan-kiri.
+| Item | Nilai |
+|------|-------|
+| Package | `p5_1_714240002` |
+| Dart SDK | `^3.13.5` |
+| Dependencies | `flutter`, `cupertino_icons: ^1.0.8` |
+| Dev deps | `flutter_test`, `flutter_lints: ^6.0.0` |
+| Aset gambar | `images/` (9 foto wisata lokal) |
+| Custom font | `Staatliches-Regular.ttf` |
 
 ---
 
 ## 🚀 Cara Menjalankan
 
 ```bash
-flutter pub get   # Mengunduh semua dependensi
-flutter run       # Menjalankan aplikasi di emulator/perangkat
+cd Pertemuan05/Praktikum/p5_1_714240002
+flutter pub get
+flutter run
 ```
 
 ---
 
-## 📦 Dependensi
+## 🧪 Testing
 
-| Package | Versi | Keterangan |
-|---|---|---|
-| `flutter` | SDK | Framework utama |
-| `cupertino_icons` | ^1.0.8 | Ikon gaya iOS |
-| `flutter_lints` | ^6.0.0 | Aturan lint untuk kode yang bersih |
+```bash
+flutter test
+```
 
-**Dart SDK:** `^3.13.5`
+---
+
+## 📚 Konsep Flutter yang Dipelajari (Pertemuan 05)
+
+| Konsep | Implementasi |
+|--------|-------------|
+| **Navigator.push** | Membuka `DetailScreen` dari `MainScreen` |
+| **Navigator.pop** | Kembali ke `MainScreen` dari `DetailScreen` |
+| **MaterialPageRoute** | Rute dengan transisi slide Material |
+| **Passing data antar halaman** | `DetailScreen(place: place)` – data via constructor |
+| **Navigation Stack** | `MaterialApp` menyediakan stack; push = tambah, pop = hapus |
+| `SafeArea` | Mencegah konten tertutup status bar saat overlay tombol |
+| `Stack` | Melapisi tombol kembali di atas gambar hero |
+| `ListView.builder` | Daftar item lazy-render |
+| `Image.asset` / `Image.network` | Gambar dari aset lokal dan URL |
