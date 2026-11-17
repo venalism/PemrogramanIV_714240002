@@ -10,7 +10,6 @@ class HomeScreen extends StatelessWidget {
     required this.onOpenContacts,
   });
 
-  // GANTI dengan data Anda.
   static const String nama = 'Nadi Azzada Akbar';
   static const String npm = '714240002';
 
@@ -24,7 +23,8 @@ class HomeScreen extends StatelessWidget {
             margin: const EdgeInsets.all(24),
             elevation: 4,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -35,9 +35,10 @@ class HomeScreen extends StatelessWidget {
                     child: Icon(Icons.person, size: 48),
                   ),
                   const SizedBox(height: 16),
-                  const Text(nama,
-                      style: TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.bold)),
+                  const Text(
+                    nama,
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                  ),
                   const SizedBox(height: 4),
                   const Text('NPM: $npm', style: TextStyle(fontSize: 16)),
                   const SizedBox(height: 4),

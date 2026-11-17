@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'UTS Pemrograman IV',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false, fontFamily: 'Poppins'),
       home: const AppShell(),
     );
   }
